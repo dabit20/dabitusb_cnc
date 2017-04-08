@@ -1,0 +1,14 @@
+loadrt threads name1=test-thread period1=10000000
+loadrt dabitusb
+loadrt siggen
+addf dabitusb test-thread
+addf siggen.0.update test-thread
+setp siggen.0.frequency 0.25
+setp siggen.0.amplitude 10.0
+net motionx siggen.0.sine dabitusb.position-cmd-joint0
+net motiony siggen.0.cosine dabitusb.position-cmd-joint1
+setp dabitusb.enable true
+setp dabitusb.digout3 true
+start
+show
+loadusr halscope

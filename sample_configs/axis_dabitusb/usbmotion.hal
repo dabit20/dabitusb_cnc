@@ -1,0 +1,41 @@
+# CNCZone.nl LinuxCNC workshop
+# Minimale HAL-file voor de USB controller
+
+# Laad de kinematica-module. In ons geval 'trivkins', oftewel een cartesische machine
+loadrt [KINS]KINEMATICS
+#autoconverted  trivkins
+
+# Laad de motion controller module
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS 
+
+# Laad de module voor het USB breakoutbord. 
+loadrt dabitusb
+
+# Voeg de modules toe aan de servo thread
+addf motion-command-handler servo-thread
+addf motion-controller servo-thread
+addf dabitusb servo-thread
+
+# Het USB breakoutbord moet weten hoeveel stapjes er in een millimeter zitten.
+setp dabitusb.position-scale-joint0 [BLAA]PIETJEPUK
+setp dabitusb.position-scale-joint1 [JOINT_1]OUTPUT_SCALE
+setp dabitusb.position-scale-joint2 [JOINT_2]OUTPUT_SCALE
+
+# Activeer het USB breakoutbordje pas als LinuxCNC ook geactiveerd en niet in fout/estop is.
+net enable-usb joint.0.amp-enable-out => dabitusb.enable
+
+# Stuur de motorposities van de motioncontroller door naar het USB breakoutbordje
+net xpos-cmd joint.0.motor-pos-cmd => dabitusb.position-cmd-joint0
+net xpos-fb dabitusb.position-fb-joint0 => joint.0.motor-pos-fb
+
+net ypos-cmd joint.1.motor-pos-cmd => dabitusb.position-cmd-joint1
+net ypos-fb dabitusb.position-fb-joint1 => joint.1.motor-pos-fb
+
+net zpos-cmd joint.2.motor-pos-cmd => dabitusb.position-cmd-joint2
+net zpos-fb dabitusb.position-fb-joint2 => joint.2.motor-pos-fb
+
+
+# Simpele Estop chain: de Estop knop van de GUI naar LinuxCNC.
+net estop-out <= iocontrol.0.user-enable-out
+net estop-out => iocontrol.0.emc-enable-in
+

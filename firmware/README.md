@@ -1,0 +1,3 @@
+This directory contains the firmware required for the STM32F103 Minimum System Development Board to function as CNC controller.
+
+It was written using SW4STM32. To flash this into the board without installing the full toolchain use either a STLink v2 programming adapter and ST's STLink tool, or connect a TTL-level serial port to the STM32F1's serial port, change the BOOT0 pin jumper, and use the bootloader included in the chip together with your favorite DFU tool.
